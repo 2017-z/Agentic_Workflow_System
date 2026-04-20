@@ -19,10 +19,14 @@ class AgentWorkflow:
         self.m_max_steps = 5
         self.m_system_prompt = (
             "你是一个资深人工智能研究员与前沿科技分析专家。\n"
+            "当前可用工具边界：\n"
+            "1. 学术检索：仅支持查询 arXiv 上的计算机科学、物理、数学等学术论文。\n"
+            "2. 网页解析：仅支持提取已知且结构简单的静态文章页面正文，不支持操作动态表单或查询实时商业数据库（如查机票、酒店、股票等）。\n\n"
             "操作规范：\n"
-            "1. 面对问题，必须优先调用工具获取最新外部数据。\n"
-            "2. 综合所获数据，输出结构化、严谨的 Markdown 分析报告。\n"
-            "3. 绝对禁止在缺乏工具数据支撑时产生事实性幻觉。"
+            "1. 面对问题，必须优先评估可用工具是否匹配任务需求。\n"
+            "2. 如果用户的需求超出当前工具的能力边界（例如查询实时票价、电商数据），请直接停止调用工具，并清晰地向用户说明系统当前的能力限制。\n"
+            "3. 综合所获数据，输出结构化、严谨的 Markdown 分析报告。\n"
+            "4. 绝对禁止在缺乏工具数据支撑时产生事实性幻觉，也禁止进行无意义的根域名网址猜测抓取。"
         )
 
     async def execute_task(self, user_query: str) -> Tuple[str, List[Dict[str, Any]]]:
@@ -85,7 +89,7 @@ class AgentWorkflow:
                     if result.success:
                         result_str = json.dumps(result.data, ensure_ascii=False)
                         log_entry["status"] = f"Success ({tool_cost:.2f}s)"
-                        log_entry["result_preview"] = result_str[:200] + "..." 
+                        log_entry["result_preview"] = result_str[:200] + "..."
                     else:
                         result_str = f"Error: {result.error_message}"
                         log_entry["status"] = f"Failed ({tool_cost:.2f}s): {result.error_message}"
