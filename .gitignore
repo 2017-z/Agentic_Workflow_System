@@ -1,0 +1,26 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Local databases, caches and weights (Strictly ignored)
+*.sqlite3
+*.db
+.chroma/
+vector_store/
+*.gguf
+*.bin
+*.safetensors
+
+# IDEs and Project files
+.vscode/
+.idea/
+
+# Secret config / Environment variables
+.env
