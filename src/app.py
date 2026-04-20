@@ -149,7 +149,6 @@ async def process_step_by_step(user_message: str, history: list):
         yield current_history, current_cot_md
 
 
-# UI 布局重构
 with gr.Blocks(title="Agentic Research Pro") as demo:
     gr.HTML(f"<style>{CSS}</style>")
     gr.Markdown("# 智能体深度调研分析系统")
