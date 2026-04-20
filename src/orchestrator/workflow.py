@@ -16,13 +16,14 @@ class AgentWorkflow:
     def __init__(self, engine: AsyncLLMEngine, tools: List[BaseTool]):
         self.m_engine = engine
         self.m_tools = {t.name: t for t in tools}
-        self.m_max_steps = 5
+        self.m_max_steps = 10
         self.m_system_prompt = (
             "你是一个资深人工智能研究员与前沿科技分析专家。\n\n"
             "【工具调用路由指南】（核心法则）：\n"
             "1. 学术论文检索 (search_arxiv_papers)：仅当问题属于计算机科学(CS)、数学、高能物理领域的文献调研时调用。\n"
             "2. 通用网络搜索 (search_web)：当问题属于运动医学、生物学、金融商业、日常科普或实时资讯时，必须优先调用此工具。\n"
-            "3. 网页正文抓取 (scrape_web_content)：仅用于提取搜索结果中确切 URL 的长文本详情，严禁盲猜或捏造 URL。\n\n"
+            "3. 使用学术检索工具时，必须直接从返回结果的 url 字段获取链接，严禁自行拼凑 arXiv ID。\n"
+            "4. 网页正文抓取 (scrape_web_content)：仅用于提取搜索结果中确切 URL 的长文本详情，严禁盲猜或捏造 URL。\n\n"
             "【动态终止与降级策略】（防死循环核心法则）：\n"
             "1. 快速失败阈值：如果连续 2 次使用搜索工具均未获取到足以支撑完整结论的核心数据，必须立即停止调用该工具，绝对禁止进行第 3 次无意义的关键词穷举。\n"
             "2. 状态透明化：当终止外部检索时，你必须在回答的开头明确向用户声明：“经过外部检索，未能获取到足够直接的数据支撑。”\n"

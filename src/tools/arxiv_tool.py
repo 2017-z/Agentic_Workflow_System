@@ -1,6 +1,6 @@
 # File: arxiv_tool.py
 # Author: baomofan
-# Description: Asynchronous Arxiv literature search tool implementation for Agentic Workflow.
+# Description: Asynchronous Arxiv literature search tool with URL extraction.
 
 import aiohttp
 import xml.etree.ElementTree as ET
@@ -10,11 +10,10 @@ from .base_tool import BaseTool, ToolResult
 
 logger = logging.getLogger(__name__)
 
-
 class ArxivSearchTool(BaseTool):
     def __init__(self):
         self.m_name = "search_arxiv_papers"
-        self.m_description = "Search for academic papers on Arxiv. Returns paper titles, authors, published dates, and abstracts."
+        self.m_description = "Search for academic papers on Arxiv. Returns paper titles, authors, URLs, and abstracts."
         super().__init__(name=self.m_name, description=self.m_description)
         self.m_base_url = "http://export.arxiv.org/api/query"
         self.m_timeout = aiohttp.ClientTimeout(total=15)
@@ -30,7 +29,7 @@ class ArxivSearchTool(BaseTool):
                     "properties": {
                         "query": {
                             "type": "string",
-                            "description": "The search query (e.g., 'all:DPO algorithm' or 'ti:Large Language Models')."
+                            "description": "The search query (e.g., 'all:BitNet' or 'ti:Large Language Models')."
                         },
                         "max_results": {
                             "type": "integer",
@@ -58,11 +57,8 @@ class ArxivSearchTool(BaseTool):
                     papers = self._parse_arxiv_xml(xml_data)
                     return ToolResult(success=True, data={"papers": papers})
 
-        except aiohttp.ClientError as e:
-            logger.error(f"Network error during Arxiv API call: {e}")
-            return ToolResult(success=False, error_message=str(e))
         except Exception as e:
-            logger.error(f"Unexpected error in Arxiv tool: {e}")
+            logger.error(f"Error in Arxiv tool: {repr(e)}")
             return ToolResult(success=False, error_message=str(e))
 
     def _parse_arxiv_xml(self, xml_string: str) -> List[Dict[str, str]]:
@@ -71,10 +67,13 @@ class ArxivSearchTool(BaseTool):
         papers = []
 
         for entry in root.findall('atom:entry', namespace):
+            # 新增：提取 id 作为论文的 URL
+            id_elem = entry.find('atom:id', namespace)
             title_elem = entry.find('atom:title', namespace)
             summary_elem = entry.find('atom:summary', namespace)
             published_elem = entry.find('atom:published', namespace)
 
+            paper_url = id_elem.text.strip() if id_elem is not None else ""
             title = title_elem.text.replace('\n', ' ').strip() if title_elem is not None else ""
             summary = summary_elem.text.replace('\n', ' ').strip() if summary_elem is not None else ""
             published = published_elem.text if published_elem is not None else ""
@@ -87,9 +86,10 @@ class ArxivSearchTool(BaseTool):
 
             papers.append({
                 "title": title,
+                "url": paper_url,  # 确保返回 URL 字段
                 "authors": ", ".join(authors),
                 "published": published,
-                "abstract": summary[:500] + "..." if len(summary) > 500 else summary
+                "abstract": summary[:800] + "..." if len(summary) > 800 else summary # 略微增加摘要长度减少二跳抓取
             })
 
         return papers
