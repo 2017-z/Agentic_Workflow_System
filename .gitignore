@@ -38,3 +38,4 @@ env/
 .DS_Store
 Thumbs.db
 build/AgentResearchPro/PYZ-00.pyz
+/build
