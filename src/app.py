@@ -8,6 +8,7 @@ import os
 import sys
 import gradio as gr
 from dotenv import load_dotenv
+from tools.web_search_tool import WebSearchTool
 
 # 加载环境变量与路径配置
 load_dotenv()
@@ -20,7 +21,7 @@ from orchestrator.workflow import AgentWorkflow
 
 # 初始化核心后端组件
 engine = AsyncLLMEngine()
-tools = [ArxivSearchTool(), WebScraperTool()]
+tools = [ArxivSearchTool(), WebScraperTool(),WebSearchTool()]
 workflow = AgentWorkflow(engine=engine, tools=tools)
 
 
