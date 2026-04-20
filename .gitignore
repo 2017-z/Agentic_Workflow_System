@@ -1,26 +1,39 @@
-# Byte-compiled / optimized / DLL files
+# ========================
+# 1. 打包与构建产物 (PyInstaller)
+# ========================
+build/
+dist/
+*.spec
+*.exe
+
+# ========================
+# 2. 环境配置与机密凭证
+# ========================
+.env
+# 下面这行很重要：排除了 .env 的忽略，强制追踪 .env.template
+!.env.template
+
+# ========================
+# 3. Python 运行时缓存
+# ========================
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+*.pyd
 
-# Virtual Environments
-.venv/
+# ========================
+# 4. 虚拟环境目录
+# ========================
+agentic_env/
 venv/
-ENV/
 env/
+.venv/
 
-# Local databases, caches and weights (Strictly ignored)
-*.sqlite3
-*.db
-.chroma/
-vector_store/
-*.gguf
-*.bin
-*.safetensors
-
-# IDEs and Project files
+# ========================
+# 5. IDE 与操作系统生成文件
+# ========================
 .vscode/
 .idea/
-
-# Secret config / Environment variables
-.env
+.DS_Store
+Thumbs.db
